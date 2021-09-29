@@ -1,10 +1,18 @@
 const express = require('express')
 const pg = require('pg')
 
+require('dotenv').config()
+
 const app = express()
 // configs come from standard PostgreSQL env vars
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
-const pool = new pg.Pool()
+const pool = new pg.Pool({
+  database: process.env.PGDATABASE,
+  host: process.env.PGHOST,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
+})
 
 const queryHandler = (req, res, next) => {
   pool.query(req.sqlQuery).then((r) => {
