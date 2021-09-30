@@ -6,13 +6,9 @@ require('dotenv').config()
 const app = express()
 // configs come from standard PostgreSQL env vars
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
-const pool = new pg.Pool({
-  database: process.env.PGDATABASE,
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  port: process.env.PGPORT,
-})
+const pool = new pg.Pool()
+
+const customLimiter = require('./Middlewares/rate_limiter')
 
 const queryHandler = (req, res, next) => {
   pool.query(req.sqlQuery).then((r) => {
@@ -20,11 +16,11 @@ const queryHandler = (req, res, next) => {
   }).catch(next)
 }
 
-app.get('/', (req, res) => {
+app.get('/', customLimiter, (req, res) => {
   res.send('Welcome to EQ Works 😎')
 })
 
-app.get('/events/hourly', (req, res, next) => {
+app.get('/events/hourly', customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, events
     FROM public.hourly_events
@@ -34,7 +30,7 @@ app.get('/events/hourly', (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/events/daily', (req, res, next) => {
+app.get('/events/daily', customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, SUM(events) AS events
     FROM public.hourly_events
@@ -45,7 +41,7 @@ app.get('/events/daily', (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/stats/hourly', (req, res, next) => {
+app.get('/stats/hourly', customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, impressions, clicks, revenue
     FROM public.hourly_stats
@@ -55,7 +51,7 @@ app.get('/stats/hourly', (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/stats/daily', (req, res, next) => {
+app.get('/stats/daily', customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date,
         SUM(impressions) AS impressions,
@@ -69,7 +65,7 @@ app.get('/stats/daily', (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/poi', (req, res, next) => {
+app.get('/poi', customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT *
     FROM public.poi;
