@@ -54,7 +54,10 @@ function App() {
         <h1>
           EQ Works Internship
       </h1>
-
+        <div>
+          <h1 style={{ textAlign: 'left' }}>Charts</h1>
+          <Charts dailyStats={dailyStats} dailyEvents={dailyEvents} />
+        </div>
         <div>
           <h1 style={{ textAlign: 'left' }}>Data Tables</h1>
           <DataTable hourlyStats={hourlyStats} hourlyEvents={hourlyEvents} />
