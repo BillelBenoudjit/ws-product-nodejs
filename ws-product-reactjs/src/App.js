@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from 'react'
 
-import Charts from "./components/charts/Chart"
+import Charts from "./components/charts/Charts"
 import DataTable from "./components/dataTable/DataTable"
 import GeoVisualization from "./components/geoVisualization/GeoVisualization"
 
@@ -15,7 +15,6 @@ function App() {
   const [dailyEvents, setDailyEvents] = useState([])
   const [hourlyStats, setHourlyStats] = useState([])
   const [dailyStats, setDailyStats] = useState([])
-  const [stats, setStats] = useState([])
   const [poi, setPoi] = useState([])
 
   const servicesApi = async () => {
@@ -36,6 +35,10 @@ function App() {
         setDailyEvents(data)
       })
 
+      getPoi().then(({ data }) => {
+        setPoi(data)
+      })
+
     } catch (error) {
       console.log(error)
     }
@@ -51,9 +54,14 @@ function App() {
         <h1>
           EQ Works Internship
       </h1>
+
         <div>
           <h1 style={{ textAlign: 'left' }}>Data Tables</h1>
           <DataTable hourlyStats={hourlyStats} hourlyEvents={hourlyEvents} />
+        </div>
+        <div>
+          <h1 style={{ textAlign: 'left' }}>Geo Visualization</h1>
+          <GeoVisualization poi={poi} />
         </div>
       </Container>
     </div >
