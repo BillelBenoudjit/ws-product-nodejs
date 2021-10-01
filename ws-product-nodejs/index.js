@@ -1,14 +1,21 @@
 const express = require('express')
 const pg = require('pg')
+const cors = require('cors')
 
 require('dotenv').config()
 
 const app = express()
+app.use(cors())
 // configs come from standard PostgreSQL env vars
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
 const pool = new pg.Pool()
 
 const customLimiter = require('./Middlewares/rate_limiter')
+
+var corsOptions = {
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
 
 const queryHandler = (req, res, next) => {
   pool.query(req.sqlQuery).then((r) => {
@@ -16,11 +23,11 @@ const queryHandler = (req, res, next) => {
   }).catch(next)
 }
 
-app.get('/', customLimiter, (req, res) => {
+app.get('/', cors(corsOptions), customLimiter, (req, res) => {
   res.send('Welcome to EQ Works 😎')
 })
 
-app.get('/events/hourly', customLimiter, (req, res, next) => {
+app.get('/events/hourly', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, events
     FROM public.hourly_events
@@ -30,7 +37,7 @@ app.get('/events/hourly', customLimiter, (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/events/daily', customLimiter, (req, res, next) => {
+app.get('/events/daily', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, SUM(events) AS events
     FROM public.hourly_events
@@ -41,7 +48,7 @@ app.get('/events/daily', customLimiter, (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/stats/hourly', customLimiter, (req, res, next) => {
+app.get('/stats/hourly', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, impressions, clicks, revenue
     FROM public.hourly_stats
@@ -51,7 +58,7 @@ app.get('/stats/hourly', customLimiter, (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/stats/daily', customLimiter, (req, res, next) => {
+app.get('/stats/daily', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date,
         SUM(impressions) AS impressions,
@@ -65,7 +72,7 @@ app.get('/stats/daily', customLimiter, (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/poi', customLimiter, (req, res, next) => {
+app.get('/poi', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT *
     FROM public.poi;
