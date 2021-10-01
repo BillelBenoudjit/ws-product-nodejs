@@ -10,7 +10,7 @@ app.use(cors())
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
 const pool = new pg.Pool()
 
-const customLimiter = require('./Middlewares/rate_limiter')
+//const customLimiter = require('./Middlewares/rate_limiter')
 
 var corsOptions = {
   origin: process.env.ORIGIN,
