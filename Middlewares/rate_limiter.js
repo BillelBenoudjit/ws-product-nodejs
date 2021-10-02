@@ -27,6 +27,7 @@ module.exports = customLimiter = (req, res, next) => {
             if (error) throw error;
             const currentTime = moment();
             //When there is no user record then a new record is created for the user and stored in the Redis storage
+            let data
             if (record == null) {
                 let newRecord = [];
                 let requestLog = {
@@ -34,11 +35,14 @@ module.exports = customLimiter = (req, res, next) => {
                     requestCount: 1
                 };
                 newRecord.push(requestLog);
+                record = [{ ...requestLog }]
                 redis_client.set(req.ip, JSON.stringify(newRecord));
+                data = record
                 next();
+            } else {
+                data = JSON.parse(record);
             }
             //When the record is found then its value is parsed and the number of requests the user has made within the last window is calculated
-            let data = JSON.parse(record);
             let windowBeginTimestamp = moment()
                 .subtract(WINDOW_DURATION_IN_HOURS, 'hours')
                 .unix();
