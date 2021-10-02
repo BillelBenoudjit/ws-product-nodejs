@@ -4,10 +4,13 @@ const redis = require('redis');
 require('dotenv').config()
 
 const redis_client = redis.createClient({
-    host: process.env.PDHOST,
-    port: process.env.PDPORT,
-    password: process.env.PDPASSWORD
+    host: `${process.env.REDIS_ENDPOINT_URI}`,
+    port: process.env.REDIS_PORT,
+    password: `${process.env.REDIS_PASSWORD}`
 });
+redis_client.on('error', (error) => console.log(error))
+redis_client.on('connect', () => console.log('connected to redis'))
+
 const WINDOW_DURATION_IN_HOURS = 24;
 const MAX_WINDOW_REQUEST_COUNT = 10000;
 const WINDOW_LOG_DURATION_IN_HOURS = 1;
