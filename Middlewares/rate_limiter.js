@@ -1,9 +1,15 @@
 const moment = require('moment');
 const redis = require('redis');
 
-const redis_client = redis.createClient();
+require('dotenv').config()
+
+const redis_client = redis.createClient({
+    host: process.env.PDHOST,
+    port: process.env.PDPORT,
+    password: process.env.PDPASSWORD
+});
 const WINDOW_DURATION_IN_HOURS = 24;
-const MAX_WINDOW_REQUEST_COUNT = 100;
+const MAX_WINDOW_REQUEST_COUNT = 10000;
 const WINDOW_LOG_DURATION_IN_HOURS = 1;
 
 module.exports = customLimiter = (req, res, next) => {

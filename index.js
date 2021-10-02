@@ -10,7 +10,7 @@ app.use(cors())
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
 const pool = new pg.Pool()
 
-//const customLimiter = require('./Middlewares/rate_limiter')
+const customLimiter = require('./Middlewares/rate_limiter')
 
 var corsOptions = {
   origin: process.env.ORIGIN,
@@ -23,11 +23,11 @@ const queryHandler = (req, res, next) => {
   }).catch(next)
 }
 
-app.get('/', cors(corsOptions), (req, res) => {
+app.get('/', cors(corsOptions), customLimiter, (req, res) => {
   res.send('Welcome to EQ Works 😎')
 })
 
-app.get('/events/hourly', cors(corsOptions), (req, res, next) => {
+app.get('/events/hourly', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, events
     FROM public.hourly_events
@@ -37,7 +37,7 @@ app.get('/events/hourly', cors(corsOptions), (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/events/daily', cors(corsOptions), (req, res, next) => {
+app.get('/events/daily', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, SUM(events) AS events
     FROM public.hourly_events
@@ -48,7 +48,7 @@ app.get('/events/daily', cors(corsOptions), (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/stats/hourly', cors(corsOptions), (req, res, next) => {
+app.get('/stats/hourly', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, impressions, clicks, revenue
     FROM public.hourly_stats
@@ -58,7 +58,7 @@ app.get('/stats/hourly', cors(corsOptions), (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/stats/daily', cors(corsOptions), (req, res, next) => {
+app.get('/stats/daily', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date,
         SUM(impressions) AS impressions,
@@ -72,7 +72,7 @@ app.get('/stats/daily', cors(corsOptions), (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.get('/poi', cors(corsOptions), (req, res, next) => {
+app.get('/poi', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT *
     FROM public.poi;
