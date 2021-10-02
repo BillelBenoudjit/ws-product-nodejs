@@ -46,9 +46,9 @@ module.exports = customLimiter = (req, res, next) => {
                 return entry.requestTimeStamp > windowBeginTimestamp;
             });
             console.log('requestsinWindow', requestsinWindow);
-            let totalWindowRequestsCount = requestsinWindow.reduce((accumulator, entry) => {
+            let totalWindowRequestsCount = requestsinWindow && requestsinWindow.reduce((accumulator, entry) => {
                 return accumulator + entry.requestCount;
-            }, 0);
+            }, 0)
             console.log('totalWindowRequestsCount', totalWindowRequestsCount)
             //if maximum number of requests is exceeded then an error is returned
             if (totalWindowRequestsCount >= MAX_WINDOW_REQUEST_COUNT) {
