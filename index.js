@@ -37,6 +37,16 @@ app.get('/events/hourly', cors(corsOptions), customLimiter, (req, res, next) => 
   return next()
 }, queryHandler)
 
+//For DataTable
+app.get('/events/hourly/poi', cors(corsOptions), customLimiter, (req, res, next) => {
+  req.sqlQuery = `
+    SELECT e.date, e.hour, e.events, p.name
+    FROM public.hourly_events e
+    INNER JOIN public.poi p ON e.poi_id = p.poi_id 
+  `
+  return next()
+}, queryHandler)
+
 app.get('/events/daily', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, SUM(events) AS events
@@ -52,6 +62,18 @@ app.get('/stats/hourly', cors(corsOptions), customLimiter, (req, res, next) => {
   req.sqlQuery = `
     SELECT date, hour, impressions, clicks, revenue
     FROM public.hourly_stats
+    ORDER BY date, hour
+    LIMIT 168;
+  `
+  return next()
+}, queryHandler)
+
+//For DataTable
+app.get('/stats/hourly/poi', cors(corsOptions), customLimiter, (req, res, next) => {
+  req.sqlQuery = `
+    SELECT s.date, s.hour, s.impressions, s.clicks, s.revenue, p.name 
+    FROM public.hourly_stats s
+    INNER JOIN public.poi p ON s.poi_id = p.poi_id
     ORDER BY date, hour
     LIMIT 168;
   `
